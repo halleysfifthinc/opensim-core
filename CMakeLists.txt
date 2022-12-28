@@ -662,12 +662,11 @@ if(UNIX) # Linux and macOS
 endif()
 
 set(OPENSIM_DEPENDENCIES_DIR 
-    "${CMAKE_SOURCE_DIR}/../opensim_dependencies_install"
+    "${CMAKE_BINARY_DIR}/dependencies"
     CACHE 
     PATH
     "Directory containing installed binaries of OpenSim dependencies. Set this
      only if you used the Superbuild procedure to install dependencies. ")
-
 
 # Default paths for finding dependencies.
 get_filename_component(OPENSIM_DEPENDENCIES_ABSDIR "${OPENSIM_DEPENDENCIES_DIR}"

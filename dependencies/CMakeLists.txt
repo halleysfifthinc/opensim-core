@@ -14,11 +14,10 @@ include(CMakeDependentOption)
 function(SetDefaultCMakeInstallPrefix)
     get_filename_component(BASE_DIR ${CMAKE_SOURCE_DIR} DIRECTORY)
     # Move one directory up to the folder adjacent to the opensim-core folder.
-    get_filename_component(BASE_DIR ${BASE_DIR} DIRECTORY)
     # Default install prefix for OpenSim dependencies. If user changes
     # CMAKE_INSTALL_PREFIX, this directory will be removed.
     set(DEFAULT_CMAKE_INSTALL_PREFIX 
-        ${BASE_DIR}/opensim_dependencies_install
+        ${BASE_DIR}/build/dependencies
         CACHE
         INTERNAL
         "Default CMAKE_INSTALL_PREFIX for OpenSim dependencies.")
