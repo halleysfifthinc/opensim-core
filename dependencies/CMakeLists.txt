@@ -196,10 +196,13 @@ AddDependency(NAME       spdlog
                          -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON)
 # Moco settings.
 # --------------
-option(OPENSIM_WITH_CASADI
-        "Build CasADi support for Moco (MocoCasADiSolver)." OFF)
-option(OPENSIM_WITH_TROPTER
-        "Build the tropter optimal control library, for use in MocoTropterSolver." OFF)
+include(CMakeDependentOption)
+option(OPENSIM_WITH_MOCO
+        "Build OpenSim with Moco libraries (CasADi and tropter)." ON)
+cmake_dependent_option(OPENSIM_WITH_CASADI
+    "Build CasADi support for Moco (MocoCasADiSolver)." ON "OPENSIM_WITH_MOCO" OFF)
+cmake_dependent_option(OPENSIM_WITH_TROPTER
+        "Build the tropter optimal control library, for use in MocoTropterSolver." ON "OPENSIM_WITH_MOCO" OFF)
 
 
 if(OPENSIM_WITH_TROPTER OR OPENSIM_WITH_CASADI)

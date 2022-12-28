@@ -190,15 +190,19 @@ mark_as_advanced(OPENSIM_BUILD_INDIVIDUAL_APPS)
 
 # Moco settings.
 # --------------
-option(OPENSIM_WITH_CASADI
-        "Build CasADi support for Moco (MocoCasADiSolver)." ON)
+include(CMakeDependentOption)
+option(OPENSIM_WITH_MOCO
+        "Build OpenSim with Moco libraries (CasADi and tropter)." ON)
+add_feature_info(WITH_MOCO OPENSIM_WITH_MOCO
+        "Build OpenSim with Moco libraries (OPENSIM_WITH_MOCO)")
+cmake_dependent_option(OPENSIM_WITH_CASADI
+    "Build CasADi support for Moco (MocoCasADiSolver)." ON "OPENSIM_WITH_MOCO" OFF)
 add_feature_info(WITH_CASADI OPENSIM_WITH_CASADI
         "Build CasADi support for Moco (OPENSIM_WITH_CASADI)")
-option(OPENSIM_WITH_TROPTER
-        "Build the tropter optimal control library, for use in MocoTropterSolver." ON)
+cmake_dependent_option(OPENSIM_WITH_TROPTER
+        "Build the tropter optimal control library, for use in MocoTropterSolver." ON "OPENSIM_WITH_MOCO" OFF)
 add_feature_info(WITH_TROPTER OPENSIM_WITH_TROPTER
         "Build the tropter optimal control library (OPENSIM_WITH_TROPTER)")
-
 
 # Configure installation directories across platforms.
 # ----------------------------------------------------
