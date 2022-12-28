@@ -99,7 +99,7 @@ OpenSimAddMatlabTest(testOsimList2MatlabCell testOsimList2MatlabCell.m)
 OpenSimAddMatlabTest(testWalkerScripts testWalkerScripts.m)
 
 if(OPENSIM_WITH_CASADI)
-    OpenSimAddMatlabTest(SlidingMass ../Examples/Moco/exampleSlidingMass.m)
+    OpenSimAddMatlabTest(SlidingMass ../examples/Moco/exampleSlidingMass.m)
 endif()
 OpenSimAddMatlabTest(MocoSWIGAdditionalInterface
     testMocoSWIGAdditionalInterface.m)
