@@ -644,6 +644,7 @@ macro(OpenSimFindSwigFileDependencies OSIMSWIGDEP_RETURNVAL
     execute_process(COMMAND ${SWIG_EXECUTABLE}
             -MM # List dependencies, but omit files in SWIG library.
             ${OSIMSWIGDEP_INVOCATION}
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         OUTPUT_VARIABLE _dependencies_makefile
         RESULT_VARIABLE _successfully_got_dependencies
             )

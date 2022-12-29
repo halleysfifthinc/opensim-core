@@ -75,7 +75,7 @@ macro(OpenSimAddPythonModule)
     # are shared between both invocations.
     set(_swig_common_args -c++ -python -py3
             -I${OpenSim_SOURCE_DIR}
-            -I${OpenSim_SOURCE_DIR}/Bindings/
+            -I${OpenSim_SOURCE_DIR}/Bindings
             -I${Simbody_INCLUDE_DIR}
             -v
             ${SWIG_FLAGS}
@@ -99,6 +99,7 @@ macro(OpenSimAddPythonModule)
             ${SWIG_DOXYGEN_STRING}
             -outdir "${CMAKE_CURRENT_BINARY_DIR}"
             ${_swig_common_args}
+        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
         DEPENDS ${_${OSIMSWIGPY_MODULE}_dependencies}
             COMMENT "Generating python bindings source code with SWIG: ${OSIMSWIGPY_MODULE} module."
         )
