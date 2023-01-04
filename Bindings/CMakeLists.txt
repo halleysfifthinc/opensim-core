@@ -1,5 +1,13 @@
 if(BUILD_PYTHON_WRAPPING OR BUILD_JAVA_WRAPPING)
-    find_package(SWIG 4.0.2 REQUIRED)
+    set(swig_components)
+    if(BUILD_PYTHON_WRAPPING)
+        list(APPEND swig_components python)
+    endif()
+    if(BUILD_JAVA_WRAPPING)
+        list(APPEND swig_components java)
+    endif()
+
+    find_package(SWIG 4.0.2 REQUIRED COMPONENTS ${swig_components})
 endif()
 
 # Flags are both Python and Java bindings will use.
