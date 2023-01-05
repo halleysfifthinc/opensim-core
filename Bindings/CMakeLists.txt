@@ -12,7 +12,7 @@ endif()
 
 # Flags are both Python and Java bindings will use.
 if(WITH_EZC3D)
-    set(SWIG_FLAGS "-DWITH_EZC3D")
+    set(SWIG_COMPILE_OPTIONS "-DWITH_EZC3D")
 endif()
 #flag to indicate whether to let SWIG process Doxygen comments
 # Will be on for releases but too many warnings/errors for regular dev.
@@ -21,6 +21,7 @@ mark_as_advanced(SWIG_DOXYGEN)
 set(SWIG_DOXYGEN_STRING "")
 if (SWIG_DOXYGEN)
     set(SWIG_DOXYGEN_STRING "-doxygen")
+    list(APPEND SWIG_COMPILE_OPTIONS ${SWIG_DOXYGEN_STRING})
 endif()
 
 if(BUILD_PYTHON_WRAPPING)

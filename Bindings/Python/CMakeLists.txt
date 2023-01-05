@@ -1,3 +1,12 @@
+include(UseSWIG)
+
+if(POLICY CMP0078)
+    cmake_policy(SET CMP0078 NEW)
+endif()
+
+set(UseSWIG_MODULE_VERSION 2)
+set(SWIG_USE_SWIG_DEPENDENCIES ON)
+set(SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
 
 # Location of the opensim python package in the build directory, for testing.
 if(MSVC OR XCODE)
@@ -61,55 +70,30 @@ macro(OpenSimAddPythonModule)
     cmake_parse_arguments(
         OSIMSWIGPY "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    # Generate source code for wrapper using SWIG.
-    # --------------------------------------------
-    set(_output_file_prefix
-        "${CMAKE_CURRENT_BINARY_DIR}/python_${OSIMSWIGPY_MODULE}_wrap")
-    set(_output_cxx_file "${_output_file_prefix}.cxx")
-    set(_output_header_file "${_output_file_prefix}.h")
+    set(_output_dir "${CMAKE_CURRENT_BINARY_DIR}/python_${OSIMSWIGPY_MODULE}")
     set(_interface_file
         "${CMAKE_CURRENT_SOURCE_DIR}/swig/python_${OSIMSWIGPY_MODULE}.i")
 
-    # We run swig once to get dependencies and then again to actually generate
-    # the wrappers. This variable holds the parts of the swig command that
-    # are shared between both invocations.
-    set(_swig_common_args -c++ -python -py3
-            -I${OpenSim_SOURCE_DIR}
-            -I${OpenSim_SOURCE_DIR}/Bindings
-            -I${Simbody_INCLUDE_DIR}
-            -v
-            ${SWIG_FLAGS}
-            ${_interface_file}
-            )
-
-    # Assemble dependencies. This macro runs a command during CMake's
-    # configure step and fills the first argument with a list of the
-    # dependencies.
-    OpenSimFindSwigFileDependencies(_${OSIMSWIGPY_MODULE}_dependencies
-        "${OSIMSWIGPY_MODULE} (Python)" "${_swig_common_args}")
-
-    # Run swig.
-    add_custom_command(
-        OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/${OSIMSWIGPY_MODULE}.py"
-            ${_output_cxx_file} ${_output_header_file}
-        COMMAND ${SWIG_EXECUTABLE}
-            #-debug-tmused # Which typemaps were used?
-            -v # verbose
-            -o ${_output_cxx_file}
-            ${SWIG_DOXYGEN_STRING}
-            -outdir "${CMAKE_CURRENT_BINARY_DIR}"
-            ${_swig_common_args}
-        WORKING_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}"
-        DEPENDS ${_${OSIMSWIGPY_MODULE}_dependencies}
-            COMMENT "Generating python bindings source code with SWIG: ${OSIMSWIGPY_MODULE} module."
-        )
-
     # Compile python wrapper files into a library.
     # --------------------------------------------
-    set(_libname _${OSIMSWIGPY_MODULE}) 
+    set(_libname _${OSIMSWIGPY_MODULE})
 
     # Used for specifying dependencies for PythonBindings.
     list(APPEND OPENSIM_PYTHON_PACKAGE_LIBRARY_TARGETS ${_libname})
+
+    set_property(SOURCE ${_interface_file} PROPERTY CPLUSPLUS ON)
+    set_property(SOURCE ${_interface_file} PROPERTY INCLUDE_DIRECTORIES
+        "${OpenSim_SOURCE_DIR}"
+        "${OpenSim_SOURCE_DIR}/Bindings"
+        "${Simbody_INCLUDE_DIR}"
+    )
+    set_property(SOURCE ${_interface_file} PROPERTY COMPILE_OPTIONS -py3)
+
+    swig_add_library(${_libname}
+        TYPE SHARED
+        LANGUAGE python
+        OUTPUT_DIR "${_output_dir}"
+        SOURCES ${_interface_file})
 
     # We purposefully wrap deprecated functions, so no need to see such
     # warnings.
@@ -134,15 +118,13 @@ macro(OpenSimAddPythonModule)
         set(_COMPILE_FLAGS "${_COMPILE_FLAGS} -Wno-deprecated-register")
     endif()
 
-    set_source_files_properties("${_output_cxx_file}"
-        PROPERTIES COMPILE_FLAGS "${_COMPILE_FLAGS}")
-
-    add_library(${_libname} SHARED ${_output_cxx_file} ${_output_header_file})
+    set_target_properties("${_libname}"
+        PROPERTIES COMPILE_FLAGS ${_COMPILE_FLAGS})
 
     target_include_directories(${_libname} PRIVATE
             "${Python3_INCLUDE_DIRS}"
             "${Python3_NumPy_INCLUDE_DIRS}")
-    
+
     # On macOS, the python interpreter might link to the python library 
     # statically, in which case we do not want to link dynamically to the
     # python library. This situation occurs with Anaconda's python.
@@ -165,7 +147,7 @@ macro(OpenSimAddPythonModule)
     endif()
 
     target_link_libraries(${_libname} osimTools osimExampleComponents osimMoco)
-    
+
     # Set target properties for various platforms.
     # --------------------------------------------
     # Resulting library must be named with .so on Unix, .pyd on Windows.
@@ -205,7 +187,7 @@ macro(OpenSimAddPythonModule)
     add_custom_command(TARGET ${_libname} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy "$<TARGET_FILE:${_libname}>"
             "${OPENSIM_PYTHON_BINARY_DIR}/opensim/$<TARGET_FILE_NAME:${_libname}>"
-        COMMAND ${CMAKE_COMMAND} -E copy "${CMAKE_CURRENT_BINARY_DIR}/${OSIMSWIGPY_MODULE}.py"
+        COMMAND ${CMAKE_COMMAND} -E copy "${_output_dir}/${OSIMSWIGPY_MODULE}.py"
             "${OPENSIM_PYTHON_BINARY_DIR}/opensim/${OSIMSWIGPY_MODULE}.py"
         COMMENT "Copying ${OSIMSWIGPY_MODULE}.py and ${_libname} to python package in build directory."
         VERBATIM
