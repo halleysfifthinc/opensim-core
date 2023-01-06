@@ -8,6 +8,15 @@ if(BUILD_PYTHON_WRAPPING OR BUILD_JAVA_WRAPPING)
     endif()
 
     find_package(SWIG 4.0.2 REQUIRED COMPONENTS ${swig_components})
+    include(UseSWIG)
+
+    if(POLICY CMP0078)
+        cmake_policy(SET CMP0078 NEW)
+    endif()
+
+    set(UseSWIG_MODULE_VERSION 2)
+    set(SWIG_USE_SWIG_DEPENDENCIES ON)
+    set(SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
 endif()
 
 # Flags are both Python and Java bindings will use.

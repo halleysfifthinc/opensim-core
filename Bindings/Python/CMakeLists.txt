@@ -1,13 +1,3 @@
-include(UseSWIG)
-
-if(POLICY CMP0078)
-    cmake_policy(SET CMP0078 NEW)
-endif()
-
-set(UseSWIG_MODULE_VERSION 2)
-set(SWIG_USE_SWIG_DEPENDENCIES ON)
-set(SWIG_USE_TARGET_INCLUDE_DIRECTORIES ON)
-
 # Location of the opensim python package in the build directory, for testing.
 if(MSVC OR XCODE)
     # Multi-configuration generators like MSVC and XCODE use one build tree for
