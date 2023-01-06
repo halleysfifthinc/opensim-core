@@ -8,95 +8,40 @@ find_package(JNI 1.8 REQUIRED)
 # CMakeLists.txt.
 set_directory_properties(PROPERTIES COMPILE_OPTIONS "")
 
-function(OpenSimGenerateJavaWrapper
-        NAME INPUT_INTERFACE_FILE OUTPUT_CXX_FILE OUTPUT_H_FILE)
+set(SWIG_JAVA_INTERFACE_FILES
+    "${CMAKE_CURRENT_SOURCE_DIR}/../swig/java_simbody.i"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../swig/java_common.i"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../swig/java_simulation.i"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../swig/java_actuators.i"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../swig/java_examplecomponents.i"
+    "${CMAKE_CURRENT_SOURCE_DIR}/../swig/java_moco.i")
+cmake_path(NORMAL_PATH SWIG_JAVA_INTERFACE_FILES)
 
-    set(_swig_common_args -c++ -java ${SWIG_DOXYGEN_STRING}
-            -package ${OPENSIM_JAVA_WRAPPING_PACKAGE}
-            -I${OpenSim_SOURCE_DIR}
-            -I${OpenSim_SOURCE_DIR}/Bindings
-            -I${Simbody_INCLUDE_DIR}
-            ${SWIG_FLAGS}
-            ${INPUT_INTERFACE_FILE}
-            )
+set_property(SOURCE ${SWIG_JAVA_INTERFACE_FILES} PROPERTY CPLUSPLUS ON)
+set_property(SOURCE ${SWIG_JAVA_INTERFACE_FILES} PROPERTY INCLUDE_DIRECTORIES
+    "${OpenSim_SOURCE_DIR}"
+    "${OpenSim_SOURCE_DIR}/Bindings"
+    "${Simbody_INCLUDE_DIR}"
+)
+set_property(SOURCE ${SWIG_JAVA_INTERFACE_FILES} PROPERTY COMPILE_OPTIONS
+    -package ${OPENSIM_JAVA_WRAPPING_PACKAGE} ${SWIG_COMPILE_OPTIONS})
 
-    OpenSimFindSwigFileDependencies(_${NAME}_dependencies "${NAME} (Java)"
-        "${_swig_common_args}"
-        )
+swig_add_library(osim${KIT}
+    TYPE SHARED
+    LANGUAGE java
+    OUTPUT_DIR ${SWIG_JAVA_SOURCE_BUILD_OUTPUT_DIR}
+    SOURCES ${SWIG_JAVA_INTERFACE_FILES}
+        OpenSimContext.cpp
+        OpenSimContext.h
+)
 
-    # This directory will hold the SWIG-generated .java files, but SWIG won't
-    # create this directory for us.
-    execute_process(COMMAND ${CMAKE_COMMAND} -E make_directory
-        ${CMAKE_CURRENT_BINARY_DIR}/src/${NAME})
-    add_custom_command(
-        # This target actually creates a lot more (all the produced .java files)
-        # but we will just use these two files as a proxy for all of those.
-        OUTPUT ${OUTPUT_CXX_FILE} ${OUTPUT_H_FILE}
-        # To avoid compiling stale .java files, delete any existing .java files.
-        COMMAND ${CMAKE_COMMAND} -E remove ${CMAKE_CURRENT_BINARY_DIR}/src/${NAME}/*
-        COMMAND ${SWIG_EXECUTABLE}
-            -v # verbose
-            -o ${OUTPUT_CXX_FILE}
-            -outdir ${CMAKE_CURRENT_BINARY_DIR}/src/${NAME}
-            ${_swig_common_args}
-        DEPENDS ${_${NAME}_dependencies}
-        COMMENT "Generating Java bindings source code with SWIG: ${NAME}")
-endfunction()
-
-OpenSimGenerateJavaWrapper(simbody
-    ${SWIG_JAVA_SIMBODY_INTERFACE_FILE}
-    ${SWIG_JAVA_SIMBODY_CXX_FILE}
-    ${SWIG_JAVA_SIMBODY_H_FILE})
-
-OpenSimGenerateJavaWrapper(common
-    ${SWIG_JAVA_COMMON_INTERFACE_FILE}
-    ${SWIG_JAVA_COMMON_CXX_FILE}
-    ${SWIG_JAVA_COMMON_H_FILE})
-
-OpenSimGenerateJavaWrapper(simulation
-    ${SWIG_JAVA_SIMULATION_INTERFACE_FILE}
-    ${SWIG_JAVA_SIMULATION_CXX_FILE}
-    ${SWIG_JAVA_SIMULATION_H_FILE})
-
-OpenSimGenerateJavaWrapper(actuators-analysis-tools
-    ${SWIG_JAVA_ACTUATORS_INTERFACE_FILE}
-    ${SWIG_JAVA_ACTUATORS_CXX_FILE}
-    ${SWIG_JAVA_ACTUATORS_H_FILE})
-
-OpenSimGenerateJavaWrapper(examplecomponents
-    ${SWIG_JAVA_EXAMPLECOMPONENTS_INTERFACE_FILE}
-    ${SWIG_JAVA_EXAMPLECOMPONENTS_CXX_FILE}
-    ${SWIG_JAVA_EXAMPLECOMPONENTS_H_FILE})
-
-OpenSimGenerateJavaWrapper(moco
-    ${SWIG_JAVA_MOCO_INTERFACE_FILE}
-    ${SWIG_JAVA_MOCO_CXX_FILE}
-    ${SWIG_JAVA_MOCO_H_FILE})
+set_target_properties(osim${KIT} PROPERTIES SWIG_COMPILE_OPTIONS ${SWIG_COMPILE_OPTIONS})
 
 set(EXPORT_MACRO OSIM${UKIT}_EXPORTS)
-
-add_library(osim${KIT} 
-    SHARED 
-    ${SWIG_JAVA_SIMBODY_CXX_FILE} 
-    ${SWIG_JAVA_SIMBODY_H_FILE}
-    ${SWIG_JAVA_COMMON_CXX_FILE} 
-    ${SWIG_JAVA_COMMON_H_FILE}
-    ${SWIG_JAVA_SIMULATION_CXX_FILE} 
-    ${SWIG_JAVA_SIMULATION_H_FILE}
-    ${SWIG_JAVA_ACTUATORS_CXX_FILE} 
-    ${SWIG_JAVA_ACTUATORS_H_FILE}
-    ${SWIG_JAVA_EXAMPLECOMPONENTS_CXX_FILE}
-    ${SWIG_JAVA_EXAMPLECOMPONENTS_H_FILE}
-    ${SWIG_JAVA_MOCO_CXX_FILE}
-    ${SWIG_JAVA_MOCO_H_FILE}
-    OpenSimContext.cpp
-    OpenSimContext.h)
 
 target_include_directories(osim${KIT} PRIVATE
                            ${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
 
-target_link_libraries(osim${KIT} osimTools osimExampleComponents osimMoco)
-    
 set_target_properties(osim${KIT} PROPERTIES
    DEFINE_SYMBOL ${EXPORT_MACRO}
    PROJECT_LABEL "Java - osim${KIT}"
@@ -114,13 +59,10 @@ elseif(${CMAKE_CXX_COMPILER_ID} MATCHES "MSVC")
     # 4114: "const const T"
     set(COMPILE_FLAGS "/wd4996 /wd4114")
 endif()
-set_source_files_properties(
-        ${SWIG_JAVA_SIMBODY_CXX_FILE}
-        ${SWIG_JAVA_COMMON_CXX_FILE}
-        ${SWIG_JAVA_SIMULATION_CXX_FILE}
-        ${SWIG_JAVA_ACTUATORS_CXX_FILE}
-        ${SWIG_JAVA_EXAMPLECOMPONENTS_CXX_FILE}
+set_target_properties(osim${KIT}
         PROPERTIES COMPILE_FLAGS "${COMPILE_FLAGS}")
+
+target_link_libraries(osim${KIT} osimTools osimExampleComponents osimMoco)
 
 # RPATH: The osim libraries that osimJavaJNI needs are in the same folder as
 # osimJavaJNI.
