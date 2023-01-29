@@ -643,6 +643,8 @@ set(OPENSIM_DEPENDENCIES_DIR
     "Directory containing installed binaries of OpenSim dependencies. Set this
      only if you used the Superbuild procedure to install dependencies. ")
 
+add_subdirectory(dependencies2)
+
 # Default paths for finding dependencies.
 get_filename_component(OPENSIM_DEPENDENCIES_ABSDIR "${OPENSIM_DEPENDENCIES_DIR}"
         ABSOLUTE)
@@ -704,87 +706,6 @@ endif()
 find_package(spdlog REQUIRED
         HINTS "${OPENSIM_DEPENDENCIES_DIR}/spdlog")
 
-
-if(NOT SIMBODY_HOME AND OPENSIM_DEPENDENCIES_DIR)
-    set(SIMBODY_HOME "${OPENSIM_DEPENDENCIES_DIR}/simbody")
-endif()
-
-
-# Find Simbody.
-# -------------
-# As of Simbody 3.4, Simbody has a SimbodyConfig.cmake file, which is a
-# preferred way to find Simbody over the previous FindSimbody.cmake script.
-# NO_MODULE means we will not allow the use of a FindSimbody.cmake script.
-set(SIMBODY_VERSION_TO_USE 3.7)
-
-# Find Simbody freshly by unsetting this CMake-generated variable.
-unset(Simbody_DIR CACHE)
-if("${SIMBODY_HOME}" STREQUAL "")
-    # We assume the only case in which the user
-    # wants us to search for Simbody is if they left SIMBODY_HOME empty.
-    # If the user specifies an invalid SIMBODY_HOME by accident,
-    # we shouldn't let that fail silently and still search for
-    # Simbody elsewhere; they may never realize
-    # we are not using their requested installation of Simbody.
-    find_package(Simbody ${SIMBODY_VERSION_TO_USE}
-        NO_MODULE)
-else()
-    # Find the package using the user-specified path.
-    # NO_DEFAULT_PATH will cause find_package to only
-    # look in the provided PATHS.
-    find_package(Simbody ${SIMBODY_VERSION_TO_USE}
-        PATHS "${SIMBODY_HOME}" NO_MODULE NO_DEFAULT_PATH)
-endif()
-# This variable appears in the CMake GUI and could confuse users,
-# since this variable can't be changed manually.
-mark_as_advanced(Simbody_DIR)
-
-# If Simbody is not found, Simbody_FOUND is false.
-if(NOT Simbody_FOUND)
-    message(FATAL_ERROR "
-        Simbody ${SIMBODY_VERSION_TO_USE} not found. Install Simbody and set
-        SIMBODY_HOME to the installation directory of Simbody.")
-endif()
-
-# Check if Simbody targets were built using same BUILD_TYPE/CONFIGURATION as
-# current OpenSim build. If build/configuration types mismatch, stop the build.
-# ------------------------------------------------------------------------------
-get_property(Simbody_CONFIGURATION
-    TARGET   SimTKcommon
-    PROPERTY IMPORTED_CONFIGURATIONS)
-
-string(CONCAT MESSAGE
-    "Checking if Simbody was built with same BUILD_TYPE or CONFIGURATION as "
-    "the current OpenSim BUILD_TYPE or CONFIGURATION.")
-
-if(WIN32)
-    string(TOLOWER "${Simbody_CONFIGURATION}" Simbody_CONFIGURATION_STR)
-    add_custom_target(Simbody_CONFIG_check ALL
-        COMMAND "set" "Simbody_CONFIG=${Simbody_CONFIGURATION_STR}"
-        COMMAND "if"
-           "\"%Simbody_CONFIG:$<LOWER_CASE:$<CONFIG>>=%\"==\"%Simbody_CONFIG%\""
-           "exit" "1"
-        COMMENT ${MESSAGE})
-endif()
-
-# Copy Simbody DLLs to build tree.
-# --------------------------------
-# On Windows, we must copy Simbody libraries to the OpenSim build directory
-# so that the tests and examples can run without modifying the PATH
-# (that is, put Simbody's dll's in the same directory as OpenSim's
-# executables and libraries).
-OpenSimCopyDependencyDLLsForWin(DEP_NAME Simbody
-        DEP_BIN_DIR "${Simbody_BIN_DIR}")
-if(WIN32)
-    add_dependencies(Copy_Simbody_DLLs Simbody_CONFIG_check)
-endif()
-
-
-# Directories for Simbody headers and libraries for building.
-# -----------------------------------------------------------
-# TODO no longer necessary; Simbody's library targets provide the 
-# include directories.
-include_directories("${Simbody_INCLUDE_DIR}")
 
 
 # CasADi

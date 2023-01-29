@@ -1,4 +1,12 @@
 if(BUILD_PYTHON_WRAPPING OR BUILD_JAVA_WRAPPING)
+    if(POLICY CMP0078)
+        cmake_policy(SET CMP0078 NEW)
+    endif()
+
+    if(POLICY CMP0086)
+        cmake_policy(SET CMP0086 NEW)
+    endif()
+
     set(swig_components)
     if(BUILD_PYTHON_WRAPPING)
         list(APPEND swig_components python)
@@ -9,10 +17,6 @@ if(BUILD_PYTHON_WRAPPING OR BUILD_JAVA_WRAPPING)
 
     find_package(SWIG 4.0.2 REQUIRED COMPONENTS ${swig_components})
     include(UseSWIG)
-
-    if(POLICY CMP0078)
-        cmake_policy(SET CMP0078 NEW)
-    endif()
 
     set(UseSWIG_MODULE_VERSION 2)
     set(SWIG_USE_SWIG_DEPENDENCIES ON)

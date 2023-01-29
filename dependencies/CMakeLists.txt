@@ -172,12 +172,12 @@ AddDependency(NAME       ezc3d
               GIT_TAG    Release_1.5.0
               CMAKE_ARGS -DBUILD_EXAMPLE:BOOL=OFF)
 
-AddDependency(NAME       simbody
-              DEFAULT    ON
-              GIT_URL    https://github.com/simbody/simbody.git
-              GIT_TAG    e855d954a786128c3271a3406d7bda782e7c4c4f
-              CMAKE_ARGS -DBUILD_EXAMPLES:BOOL=OFF
-                         -DBUILD_TESTING:BOOL=OFF)
+# AddDependency(NAME       simbody
+#               DEFAULT    ON
+#               GIT_URL    https://github.com/simbody/simbody.git
+#               GIT_TAG    e855d954a786128c3271a3406d7bda782e7c4c4f
+#               CMAKE_ARGS -DBUILD_EXAMPLES:BOOL=OFF
+#                          -DBUILD_TESTING:BOOL=OFF)
 
 AddDependency(NAME       docopt
               DEFAULT    ON
