@@ -492,6 +492,23 @@ if(WIN32 AND ${CMAKE_C_COMPILER} MATCHES "cl")
 
 endif()
 
+set(USE_CCACHE ON CACHE BOOL
+    "Use Ccache, a fast compiler cache to speed up recompilation, if available")
+mark_as_advanced(USE_CCACHE)
+
+if(USE_CCACHE)
+    find_package(CCache 4)
+    if(CCACHE_FOUND)
+        # TODO: May work on Windows; needs testing.
+        # https://ccache.dev/platform-compiler-language-support.html
+        if(NOT MSVC)
+            set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_EXECUTABLE})
+            set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_EXECUTABLE})
+        endif()
+    endif()
+endif()
+
+
 set(BUILD_JAVA_WRAPPING OFF CACHE BOOL "Build Java wrapping (needed if you're building the GUI or the Matlab wrapping; requires that you have SWIG and Java installed on your machine.)")
 
 set(BUILD_PYTHON_WRAPPING OFF CACHE BOOL "Build Python wrapping (needed if you're building the Python wrapping; requires that you have SWIG and Python installed on your machine.)")
