@@ -3,6 +3,23 @@ cmake_minimum_required(VERSION 3.24)
 include(FetchContent)
 set(fetch_libraries)
 
+FetchContent_Declare(docopt
+    GIT_REPOSITORY https://github.com/docopt/docopt.cpp.git
+    GIT_TAG 3dd23e3280f213bacefdf5fcb04857bf52e90917
+    GIT_PROGRESS ON
+    FIND_PACKAGE_ARGS # NAMES libdocopt-dev
+    SYSTEM)
+list(APPEND fetch_libraries docopt)
+
+FetchContent_Declare(spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.4.1
+    GIT_SHALLOW ON
+    GIT_PROGRESS ON
+    CMAKE_CACHE_ARGS -DSPDLOG_INSTALL:BOOL=ON
+    FIND_PACKAGE_ARGS # NAMES libspdlog-dev
+    SYSTEM)
+list(APPEND fetch_libraries spdlog)
 
 ## EZC3D
 if(${OPENSIM_C3D_PARSER} STREQUAL "ezc3d")
@@ -46,6 +63,10 @@ FetchContent_MakeAvailable(${fetch_libraries})
 # Restore BUILD_TESTING to original value
 set(BUILD_TESTING ${_build_testing} CACHE BOOL "" FORCE)
 
+set(docopt PARENT_SCOPE)
+set(spdlog PARENT_SCOPE)
+set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
+install(TARGETS spdlog EXPORT OpenSimTargets)
 
 if(${OPENSIM_C3D_PARSER} STREQUAL "ezc3d")
     target_compile_options(ezc3d
@@ -60,7 +81,7 @@ if(${OPENSIM_C3D_PARSER} STREQUAL "ezc3d")
 endif()
 
 # Silence build warnings from Simbody files
-foreach(mod SimTKcommon SimTKmath SimTKsimbody simbody-visualizer)
+foreach(mod SimTKcommon SimTKmath SimTKsimbody simbody-visualizer docopt spdlog)
     target_compile_options(${mod}
         PRIVATE
             "$<$<C_COMPILER_ID:GNU,Clang>:-w>"

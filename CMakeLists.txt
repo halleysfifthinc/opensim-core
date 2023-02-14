@@ -712,10 +712,6 @@ else()
     unset(ezc3d_INCLUDE_DIR CACHE)
 endif()
 
-find_package(spdlog REQUIRED
-        HINTS "${OPENSIM_DEPENDENCIES_DIR}/spdlog")
-
-
 
 # CasADi
 # ------
