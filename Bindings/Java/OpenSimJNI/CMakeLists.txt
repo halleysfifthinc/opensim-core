@@ -67,8 +67,8 @@ target_link_libraries(osim${KIT} osimTools osimExampleComponents osimMoco)
 # RPATH: The osim libraries that osimJavaJNI needs are in the same folder as
 # osimJavaJNI.
 OpenSimAddInstallRPATHSelf(TARGET osim${KIT} LOADER)
-OpenSimAddInstallRPATHSimbody(TARGET osim${KIT} LOADER
-    FROM "${CMAKE_INSTALL_LIBDIR}")
+# OpenSimAddInstallRPATHSimbody(TARGET osim${KIT} LOADER
+#     FROM "${CMAKE_INSTALL_LIBDIR}")
 
 # Shared libraries are needed at runtime for applications, so we put them
 # at the top level in OpenSim/bin/*.dll (Windows) or OpenSim/lib/*.so (Linux)

@@ -289,8 +289,8 @@ function(OpenSimAddLibrary)
     # RPATH (so that libraries find library dependencies)
     # ---------------------------------------------------
     OpenSimAddInstallRPATHSelf(TARGET ${OSIMADDLIB_LIBRARY_NAME} LOADER)
-    OpenSimAddInstallRPATHSimbody(TARGET ${OSIMADDLIB_LIBRARY_NAME} LOADER
-        FROM "${CMAKE_INSTALL_LIBDIR}")
+    # OpenSimAddInstallRPATHSimbody(TARGET ${OSIMADDLIB_LIBRARY_NAME} LOADER
+    #     FROM "${CMAKE_INSTALL_LIBDIR}")
 
     # Testing.
     # --------
@@ -421,8 +421,8 @@ function(OpenSimAddApplication)
     # RPATH (so that the executable finds libraries without using env. vars).
     OpenSimAddInstallRPATH(TARGET ${OSIMADDAPP_NAME} EXECUTABLE
         FROM "${CMAKE_INSTALL_BINDIR}" TO "${CMAKE_INSTALL_LIBDIR}")
-    OpenSimAddInstallRPATHSimbody(TARGET ${OSIMADDAPP_NAME} EXECUTABLE
-        FROM "${CMAKE_INSTALL_BINDIR}")
+    # OpenSimAddInstallRPATHSimbody(TARGET ${OSIMADDAPP_NAME} EXECUTABLE
+    #     FROM "${CMAKE_INSTALL_BINDIR}")
 
 endfunction()
 

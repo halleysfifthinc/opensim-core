@@ -697,22 +697,14 @@ set(OPENSIM_C3D_PARSER None CACHE STRING
 set_property(CACHE OPENSIM_C3D_PARSER PROPERTY STRINGS "ezc3d" "None")
 if(${OPENSIM_C3D_PARSER} STREQUAL "ezc3d")
     set(WITH_EZC3D true)
-    set(ezc3d_hint "${OPENSIM_DEPENDENCIES_DIR}/ezc3d/lib/cmake/ezc3d")
-    find_package(ezc3d REQUIRED HINTS "${ezc3d_hint}")
-    add_definitions(-DWITH_EZC3D)
-    set(ezc3d_ROOT_DIR "${ezc3d_DIR}/../../..")
-    set(ezc3d_LIBRARY_DIR "${ezc3d_ROOT_DIR}/lib")
-    set(ezc3d_INCLUDE_DIR "${ezc3d_ROOT_DIR}/include")
-    OpenSimCopyDependencyDLLsForWin(DEP_NAME ezc3d
-            DEP_BIN_DIR "${ezc3d_DIR}/../../../bin"
-            )
-    include_directories("${ezc3d_INCLUDE_DIR}")
-    set(ezc3d_LIBRARY "ezc3d")
-    if(BUILD_PYTHON_WRAPPING AND OPENSIM_PYTHON_STANDALONE)
-        OpenSimInstallDependencyLibraries(ezc3d "${ezc3d_DIR}/../../../bin"
-            "${ezc3d_DIR}/../../../lib" "${OPENSIM_INSTALL_PYTHONDIR}/opensim")
-    endif()
-
+    target_compile_definitions(ezc3d INTERFACE WITH_EZC3D)
+    # OpenSimCopyDependencyDLLsForWin(DEP_NAME ezc3d
+    #         DEP_BIN_DIR "${ezc3d_DIR}/../../../bin"
+    #         )
+    # if(BUILD_PYTHON_WRAPPING AND OPENSIM_PYTHON_STANDALONE)
+    #     OpenSimInstallDependencyLibraries(ezc3d "${ezc3d_DIR}/../../../bin"
+    #         "${ezc3d_DIR}/../../../lib" "${OPENSIM_INSTALL_PYTHONDIR}/opensim")
+    # endif()
 else()
     set(WITH_EZC3D false)
     unset(ezc3d_LIBRARY_DIR CACHE)
@@ -814,42 +806,42 @@ if(${OPENSIM_COPY_DEPENDENCIES})
         # if we do not want to copy any files from some of the directories in
         # DIRECTORY.
 
-        # include
-        file(RELATIVE_PATH install_simbodyincludedir
-            "${Simbody_ROOT_DIR}" "${Simbody_INCLUDE_DIR}")
-        install(DIRECTORY "${Simbody_INCLUDE_DIR}/"
-                DESTINATION "${OPENSIM_INSTALL_SIMBODYDIR}/${install_simbodyincludedir}")
+        # ${Simbody_ROOT_DIR} => ${Simbody_BINARY_DIR}
+        # file(RELATIVE_PATH install_simbodyincludedir
+        #     "${Simbody_BINARY_DIR}" "${Simbody_INCLUDE_DIR}")
+        # install(DIRECTORY "${Simbody_INCLUDE_DIR}/"
+        #         DESTINATION "${OPENSIM_INSTALL_SIMBODYDIR}/${install_simbodyincludedir}")
     
         # lib (and cmake, pkgconfig)
-        file(RELATIVE_PATH install_simbodylibdir 
-            "${Simbody_ROOT_DIR}/" "${Simbody_LIB_DIR}/")
-        file(GLOB_RECURSE simbody_desired_lib_files
-            RELATIVE "${Simbody_LIB_DIR}"
-            "${Simbody_LIB_DIR}/*SimTK*" "${Simbody_LIB_DIR}/*Simbody*.cmake"
-            "${Simbody_LIB_DIR}/*SampleCMakeLists.txt*")
-        foreach(simbody_lib_file ${simbody_desired_lib_files})
-            get_filename_component(subdir "${simbody_lib_file}" DIRECTORY)
-            install(FILES "${Simbody_LIB_DIR}/${simbody_lib_file}"
-                DESTINATION "${OPENSIM_INSTALL_SIMBODYDIR}/${install_simbodylibdir}/${subdir}")
-        endforeach()
+        # file(RELATIVE_PATH install_simbodylibdir
+        #     "${Simbody_ROOT_DIR}/" "${Simbody_LIB_DIR}/")
+        # file(GLOB_RECURSE simbody_desired_lib_files
+        #     RELATIVE "${Simbody_LIB_DIR}"
+        #     "${Simbody_LIB_DIR}/*SimTK*" "${Simbody_LIB_DIR}/*Simbody*.cmake"
+        #     "${Simbody_LIB_DIR}/*SampleCMakeLists.txt*")
+        # foreach(simbody_lib_file ${simbody_desired_lib_files})
+        #     get_filename_component(subdir "${simbody_lib_file}" DIRECTORY)
+        #     install(FILES "${Simbody_LIB_DIR}/${simbody_lib_file}"
+        #         DESTINATION "${OPENSIM_INSTALL_SIMBODYDIR}/${install_simbodylibdir}/${subdir}")
+        # endforeach()
     
         # simbody-visualizer
-        file(RELATIVE_PATH install_simbodyvizdir 
-            "${Simbody_ROOT_DIR}" "${Simbody_VIZ_DIR}")
-        install(DIRECTORY "${Simbody_VIZ_DIR}/"
-                DESTINATION "${OPENSIM_INSTALL_SIMBODYDIR}/${install_simbodyvizdir}"
-                USE_SOURCE_PERMISSIONS
-                FILES_MATCHING PATTERN "*simbody-visualizer*")
+        # file(RELATIVE_PATH install_simbodyvizdir
+        #     "${Simbody_ROOT_DIR}" "${Simbody_VIZ_DIR}")
+        # install(DIRECTORY "${Simbody_VIZ_DIR}/"
+        #         DESTINATION "${OPENSIM_INSTALL_SIMBODYDIR}/${install_simbodyvizdir}"
+        #         USE_SOURCE_PERMISSIONS
+        #         FILES_MATCHING PATTERN "*simbody-visualizer*")
     endif()
 
     # EZC3D
     # -----
-    if(NOT WIN32)
-        # LIB: .so files on Linux, .dylib on macOS
-        file(GLOB ezc3d_desired_lib_files "${ezc3d_LIBRARY_DIR}/*ezc3d*")
-        install(FILES ${ezc3d_desired_lib_files}
-                DESTINATION "${CMAKE_INSTALL_LIBDIR}")
-    endif()
+    # if(NOT WIN32)
+    #     # LIB: .so files on Linux, .dylib on macOS
+    #     file(GLOB ezc3d_desired_lib_files "${ezc3d_LIBRARY_DIR}/*ezc3d*")
+    #     install(FILES ${ezc3d_desired_lib_files}
+    #             DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+    # endif()
 
     # spdlog
     # ------

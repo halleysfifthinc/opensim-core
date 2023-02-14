@@ -161,8 +161,8 @@ target_compile_definitions(osimMoco PRIVATE
     )
 
 OpenSimAddInstallRPATHSelf(TARGET osimMoco LOADER)
-OpenSimAddInstallRPATHSimbody(TARGET osimMoco LOADER
-        FROM "${CMAKE_INSTALL_LIBDIR}")
+# OpenSimAddInstallRPATHSimbody(TARGET osimMoco LOADER
+#         FROM "${CMAKE_INSTALL_LIBDIR}")
 
 install(TARGETS osimMoco EXPORT OpenSimTargets
         ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

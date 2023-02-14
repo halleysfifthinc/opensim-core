@@ -166,11 +166,11 @@ macro(OpenSimAddPythonModule)
         OpenSimAddInstallRPATHAbsolute(TARGET ${_libname}
             TO "${CMAKE_INSTALL_LIBDIR}")
     endif()
-    OpenSimAddInstallRPATHSimbody(TARGET ${_libname} LOADER
-        FROM "${CMAKE_INSTALL_LIBDIR}/opensim")
-    if(NOT OPENSIM_PYTHON_STANDALONE)
-        OpenSimAddInstallRPATHSimbody(TARGET ${_libname} ABSOLUTE)
-    endif()
+    # OpenSimAddInstallRPATHSimbody(TARGET ${_libname} LOADER
+    #     FROM "${CMAKE_INSTALL_LIBDIR}/opensim")
+    # if(NOT OPENSIM_PYTHON_STANDALONE)
+    #     OpenSimAddInstallRPATHSimbody(TARGET ${_libname} ABSOLUTE)
+    # endif()
 
     # Copy files into the build tree python package.
     # ----------------------------------------------
