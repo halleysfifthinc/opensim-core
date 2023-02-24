@@ -100,7 +100,7 @@ if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
     # directory.
     # On Linux, we override the default value because our installation does
     # not yet conform to the Filesystem Hierarchy Standard (FHS).
-    set(CMAKE_INSTALL_PREFIX "${CMAKE_SOURCE_DIR}-install" CACHE PATH
+    set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/release" CACHE PATH
         "The directory in which to install this project." FORCE)
 endif()
 
@@ -570,7 +570,7 @@ if(${BUILD_JAVA_WRAPPING})
 endif()
 
 if(${BUILD_PYTHON_WRAPPING})
-    set(required_python_version 3)
+    # set(required_python_version 3) # Unused?
     set(Python3_ROOT_DIR ""  CACHE PATH "Top level directory containing Python3. For conda environments, this can also be set to the top level directory for a specific environment.")
     find_package(Python3 3.6 REQUIRED COMPONENTS Interpreter Development NumPy)
     message("Python3_FOUND:${Python3_FOUND}")
@@ -659,6 +659,9 @@ set(OPENSIM_DEPENDENCIES_DIR
     PATH
     "Directory containing installed binaries of OpenSim dependencies. Set this
      only if you used the Superbuild procedure to install dependencies. ")
+set(OPENSIM_C3D_PARSER None CACHE STRING
+    "Compile OpenSim with a C3D parser ? ezc3d provide C3D reading.")
+set_property(CACHE OPENSIM_C3D_PARSER PROPERTY STRINGS "ezc3d" "None")
 
 add_subdirectory(dependencies2)
 
@@ -692,9 +695,6 @@ if(NOT CMAKE_PREFIX_PATH
 endif()
 
 
-set(OPENSIM_C3D_PARSER None CACHE STRING
-    "Compile OpenSim with a C3D parser ? ezc3d provide C3D reading.")
-set_property(CACHE OPENSIM_C3D_PARSER PROPERTY STRINGS "ezc3d" "None")
 if(${OPENSIM_C3D_PARSER} STREQUAL "ezc3d")
     set(WITH_EZC3D true)
     target_compile_definitions(ezc3d INTERFACE WITH_EZC3D)
