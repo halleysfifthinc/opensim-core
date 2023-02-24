@@ -740,12 +740,12 @@ endif()
 # Avoid using pkg-config on Windows as it's not easy to get
 # on Windows. On UNIX, the pkg-config file for Ipopt provides
 # a flag that we must use.
-if(UNIX)
+if(${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux|Darwin")
     find_package(PkgConfig REQUIRED)
 endif()
 
 if (OPENSIM_WITH_CASADI OR OPENSIM_WITH_TROPTER)
-    if(UNIX)
+    if(${CMAKE_HOST_SYSTEM_NAME} MATCHES "Linux|Darwin")
         pkg_check_modules(IPOPT REQUIRED ipopt IMPORTED_TARGET)
     else()
         find_package(Ipopt REQUIRED CONFIG)
