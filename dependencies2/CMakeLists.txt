@@ -7,8 +7,9 @@ FetchContent_Declare(docopt
     GIT_REPOSITORY https://github.com/docopt/docopt.cpp.git
     GIT_TAG 3dd23e3280f213bacefdf5fcb04857bf52e90917
     GIT_PROGRESS ON
+    SYSTEM
     FIND_PACKAGE_ARGS # NAMES libdocopt-dev
-    SYSTEM)
+    )
 list(APPEND fetch_libraries docopt)
 
 FetchContent_Declare(spdlog
@@ -17,8 +18,9 @@ FetchContent_Declare(spdlog
     GIT_SHALLOW ON
     GIT_PROGRESS ON
     CMAKE_CACHE_ARGS -DSPDLOG_INSTALL:BOOL=ON
+    SYSTEM
     FIND_PACKAGE_ARGS # NAMES libspdlog-dev
-    SYSTEM)
+    )
 list(APPEND fetch_libraries spdlog)
 
 ## EZC3D
@@ -55,7 +57,7 @@ FetchContent_Declare(Simbody
     GIT_PROGRESS ON
     SYSTEM
     FIND_PACKAGE_ARGS ${SIMBODY_VERSION_TO_USE}
-        PATHS "${SIMBODY_HOME}" NO_MODULE)
+        GLOBAL PATHS "${SIMBODY_HOME}" NO_MODULE)
 list(APPEND fetch_libraries Simbody)
 
 FetchContent_MakeAvailable(${fetch_libraries})
@@ -68,7 +70,17 @@ set(spdlog PARENT_SCOPE)
 set_property(TARGET spdlog PROPERTY POSITION_INDEPENDENT_CODE ON)
 install(TARGETS spdlog EXPORT OpenSimTargets)
 
-if(${OPENSIM_C3D_PARSER} STREQUAL "ezc3d")
+foreach(mod docopt spdlog)
+    target_compile_options(${mod}
+        PRIVATE
+            "$<$<C_COMPILER_ID:GNU,Clang>:-w>"
+            "$<$<CXX_COMPILER_ID:GNU,Clang>:-w>"
+            "$<$<C_COMPILER_ID:MSVC>:/w>"
+            "$<$<CXX_COMPILER_ID:MSVC>:/w>"
+    )
+endforeach()
+
+if("${OPENSIM_C3D_PARSER}" STREQUAL "ezc3d")
     target_compile_options(ezc3d
         PRIVATE
             "$<$<C_COMPILER_ID:GNU,Clang>:-w>"
@@ -80,22 +92,29 @@ if(${OPENSIM_C3D_PARSER} STREQUAL "ezc3d")
     set(ezc3d_LIBRARY ezc3d PARENT_SCOPE)
 endif()
 
-# Silence build warnings from Simbody files
-foreach(mod SimTKcommon SimTKmath SimTKsimbody simbody-visualizer docopt spdlog)
-    target_compile_options(${mod}
-        PRIVATE
-            "$<$<C_COMPILER_ID:GNU,Clang>:-w>"
-            "$<$<CXX_COMPILER_ID:GNU,Clang>:-w>"
-            "$<$<C_COMPILER_ID:MSVC>:/w>"
-            "$<$<CXX_COMPILER_ID:MSVC>:/w>"
-    )
-endforeach()
+if(${Simbody_DIR} STREQUAL ${CMAKE_FIND_PACKAGE_REDIRECTS_DIR})
+    # Silence build warnings from Simbody files
+    foreach(mod SimTKcommon SimTKmath SimTKsimbody simbody-visualizer)
+        if(TARGET ${mod})
+            target_compile_options(${mod}
+                PRIVATE
+                    "$<$<C_COMPILER_ID:GNU,Clang>:-w>"
+                    "$<$<CXX_COMPILER_ID:GNU,Clang>:-w>"
+                    "$<$<C_COMPILER_ID:MSVC>:/w>"
+                    "$<$<CXX_COMPILER_ID:MSVC>:/w>"
+            )
+        endif()
+    endforeach()
 
-set(Simbody_LIBRARIES SimTKcommon SimTKmath SimTKsimbody PARENT_SCOPE)
-get_target_property(SimTKcommon_INCLUDE_DIRS SimTKcommon INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(SimTKmath_INCLUDE_DIRS SimTKmath INTERFACE_INCLUDE_DIRECTORIES)
-get_target_property(SimTKsimbody_INCLUDE_DIRS SimTKsimbody INTERFACE_INCLUDE_DIRECTORIES)
-set(Simbody_INCLUDE_DIR ${SimTKcommon_INCLUDE_DIRS} ${SimTKmath_INCLUDE_DIRS} ${SimTKsimbody_INCLUDE_DIRS} PARENT_SCOPE)
+    set(Simbody_LIBRARIES SimTKcommon SimTKmath SimTKsimbody PARENT_SCOPE)
+    get_target_property(SimTKcommon_INCLUDE_DIRS SimTKcommon INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(SimTKmath_INCLUDE_DIRS SimTKmath INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property(SimTKsimbody_INCLUDE_DIRS SimTKsimbody INTERFACE_INCLUDE_DIRECTORIES)
+    set(Simbody_INCLUDE_DIR ${SimTKcommon_INCLUDE_DIRS} ${SimTKmath_INCLUDE_DIRS} ${SimTKsimbody_INCLUDE_DIRS} PARENT_SCOPE)
+else()
+    set(Simbody_LIBRARIES ${Simbody_LIBRARIES} PARENT_SCOPE)
+    set(Simbody_INCLUDE_DIR ${Simbody_INCLUDE_DIR} PARENT_SCOPE)
+endif()
 
 # Copy Simbody DLLs to build tree.
 # --------------------------------
