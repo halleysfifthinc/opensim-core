@@ -165,6 +165,11 @@ mark_as_advanced(OPENSIM_PYTHON_CONDA)
 option(BUILD_API_ONLY "Build/install only headers, libraries,
 wrapping, tests; not applications (opensim, ik, rra, etc.)." OFF)
 
+option(BUILD_TESTING "Build tests." OFF)
+if(BUILD_TESTING)
+    add_definitions(-D_BUILD_TESTING)
+endif()
+
 option(OPENSIM_DISABLE_LOG_FILE
 "Disable OpenSim from automatically creating 'opensim.log'.
 

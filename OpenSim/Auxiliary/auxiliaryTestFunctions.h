@@ -27,7 +27,9 @@
 #include <OpenSim/Common/Function.h>
 #include <OpenSim/Common/LinearFunction.h>
 #include <OpenSim/Common/PropertyObjArray.h>
-#include "getRSS.h"
+#ifdef _BUILD_TESTING
+    #include "getRSS.h"
+#endif
 
 #include <fstream>
 #include <string>
@@ -332,6 +334,7 @@ inline bool revertToVersionNumber1(const std::string& filenameOld,
     return changedVersion;
 }
 
+#ifdef _BUILD_TESTING
 // Estimate the memory usage of a *creator* that heap allocates an object
 // of type C and returns a pointer to it. Creator can also perform any 
 // initialization before returning the pointer.
@@ -444,5 +447,6 @@ size_t estimateMemoryChangeForCommand(T command, const size_t nSamples = 100)
 
     return deltas[nmedian];
 }
+#endif // _BUILD_TESTING
 
 #endif // OPENSIM_AUXILIARY_TEST_FUNCTIONS_H_
