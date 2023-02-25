@@ -18,7 +18,7 @@ set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Copy dependencies' libraries into tropter's installation?
-set(TROPTER_COPY_DEPENDENCIES ON)
+set(TROPTER_COPY_DEPENDENCIES ON CACHE BOOL)
 
 # Configurable settings.
 # ----------------------
