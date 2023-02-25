@@ -37,7 +37,7 @@
 #if defined(__linux__) || defined(__APPLE__)
     #include <sys/stat.h>
     #include <sys/types.h>
-#elif defined(_MSC_VER)
+#elif defined(_WIN32)
     #include <direct.h>
 #else
     #include <unistd.h>
