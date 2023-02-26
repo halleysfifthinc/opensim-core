@@ -32,7 +32,9 @@
 #else
 
     #define WIN32_LEAN_AND_MEAN
-    #define NOMINMAX
+    #ifndef NOMINMAX
+        #define NOMINMAX
+    #endif
     #include <windows.h>
     #ifdef OSIMCOMMON_EXPORTS
         #define OSIMCOMMON_API __declspec(dllexport)
